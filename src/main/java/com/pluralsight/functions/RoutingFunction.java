@@ -25,6 +25,10 @@ public class RoutingFunction implements Function<String, Void> {
     }
 
     public static void main(String[] args) throws Exception {
+
+    	// functionConfig is the same as:
+		// 		bin/pulsar-admin functions create --jar target/functions-0.2.0.jar --classname com.pluralsight.functions.RoutingFunction --name routing-debug --inputs "voo" --log-topic logging-function-logs
+
         FunctionConfig functionConfig = new FunctionConfig();
         functionConfig.setName("routing-debug");
         functionConfig.setInputs(Collections.singleton("voo"));
@@ -32,8 +36,17 @@ public class RoutingFunction implements Function<String, Void> {
         functionConfig.setRuntime(FunctionConfig.Runtime.JAVA);
 	    functionConfig.setLogTopic("logging-function-logs");
 
-        LocalRunner localRunner = LocalRunner.builder().functionConfig(functionConfig).build();
+	    //Allow local Firewall rule to localhost 127.0.0.1:6650
+	    functionConfig.setJar("target/functions-0.2.0.jar");
+
+	    LocalRunner localRunner = LocalRunner.builder().functionConfig(functionConfig).build();
         localRunner.start(false);
+
+        // 	mvn package
+		//	Set a breakpoint after context.newOutputMessage()
+		//  run this main() in Debug mode
+        //  within the docker instance of pulsar run:
+		// 		bin/pulsar-client produce voo --messages "2011-09-16,180.197" -s ":"
     }
 
 }
